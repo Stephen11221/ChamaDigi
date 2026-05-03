@@ -30,7 +30,7 @@
         <aside class="relative z-10 flex h-full w-80 max-w-[90vw] flex-col border-r border-white/10 bg-gradient-to-b from-[#1e3a5f] via-[#12253d] to-[#0f172a] text-white shadow-2xl">
             <div class="flex items-center justify-between border-b border-white/10 px-6 py-5">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-green from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30">
                         <i class="fa-solid fa-piggy-bank"></i>
                     </div>
                     <div>
@@ -50,7 +50,7 @@
                         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 font-semibold text-white">{{ $initials }}</div>
                         <div>
                             <p class="text-sm font-semibold">{{ $user->name ?? 'Member' }}</p>
-                            <p class="text-xs text-slate-300">{{ $user->role ?? 'Member' }}</p>
+                            <p class="text-xs text-slate-300">{{ $user->role?->role_name ?? 'Member' }}</p>
                         </div>
                     </div>
                 </div>
@@ -95,11 +95,7 @@
                     <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 font-semibold text-white">{{ $initials }}</div>
                     <div>
                         <p class="text-sm font-semibold text-white">{{ $user->name ?? 'Member' }}</p>
-                        <p class="text-xs text-slate-300">{{ $user->role ?? 'Member' }}</p>
-                    </div>
-                </div>
-            </div>
-
+                            <p class="text-xs text-slate-300">{{ $user->role?->role_name ?? 'Member' }}</p>
             <nav class="mt-6 space-y-2">
                 @foreach ($links as $item)
                     <a href="{{ route($item['route']) }}" class="sidebar-link {{ request()->routeIs($item['active']) ? 'sidebar-link-active' : '' }}">

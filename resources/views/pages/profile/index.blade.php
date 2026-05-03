@@ -20,12 +20,7 @@
                         {{ $initials }}
                     </div>
                     <h2 class="mt-4 text-2xl font-semibold text-slate-900">{{ $name }}</h2>
-                    <p class="mt-1 text-sm text-slate-500">{{ Auth::user()->role ?? 'Member' }}</p>
-                </div>
-
-                <div class="mt-6 space-y-3">
-                    <div class="rounded-2xl bg-slate-50 px-4 py-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">Email</p>
+                        <p class="mt-1 text-sm text-slate-500">{{ Auth::user()->role?->role_name ?? 'Member' }}</p>
                         <p class="mt-2 text-sm font-semibold text-slate-900">{{ Auth::user()->email ?? '—' }}</p>
                     </div>
                     <div class="rounded-2xl bg-slate-50 px-4 py-4">
@@ -46,7 +41,7 @@
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-slate-700">Role</label>
                             <select class="premium-select">
-                                <option>{{ Auth::user()->role ?? 'Member' }}</option>
+                                <option>{{ Auth::user()->role?->role_name ?? 'Member' }}</option>
                                 <option>Admin</option>
                                 <option>Treasurer</option>
                                 <option>Secretary</option>

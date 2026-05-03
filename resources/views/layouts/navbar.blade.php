@@ -44,7 +44,7 @@
                             </div>
                             <div class="hidden sm:block">
                                 <p class="text-sm font-semibold text-slate-900">{{ $name }}</p>
-                                <p class="text-xs text-slate-500">{{ Auth::user()->role ?? 'Member' }}</p>
+                                <p class="text-xs text-slate-500">{{ Auth::user()->role?->role_name ?? 'Member' }}</p>
                             </div>
                             <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                         </button>
