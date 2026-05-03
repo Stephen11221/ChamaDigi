@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(16, 185, 129, 0.12), transparent 24%),
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), transparent 26%),
+            linear-gradient(180deg, #f8faf9 0%, #f5f7fb 100%);
+        color: #0f172a;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .premium-card {
+        @apply rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition duration-300;
+    }
+
+    .premium-card:hover {
+        @apply -translate-y-0.5 shadow-[0_40px_100px_-45px_rgba(15,23,42,0.45)];
+    }
+
+    .premium-card-muted {
+        @apply rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_70px_-48px_rgba(15,23,42,0.28)] transition duration-300;
+    }
+
+    .premium-card-muted:hover {
+        @apply border-emerald-200 shadow-[0_30px_85px_-50px_rgba(16,185,129,0.35)];
+    }
+
+    .premium-button {
+        @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .premium-button-primary {
+        @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+    }
+
+    .premium-button-secondary {
+        @apply bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-300;
+    }
+
+    .premium-button-dark {
+        @apply bg-slate-900 text-white hover:bg-slate-800 focus:ring-slate-500;
+    }
+
+    .premium-button-danger {
+        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    }
+
+    .premium-button-outline {
+        @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-300;
+    }
+
+    .premium-input {
+        @apply w-full rounded-2xl border border-slate-200 bg-white/95 px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100;
+    }
+
+    .premium-select {
+        @apply w-full rounded-2xl border border-slate-200 bg-white/95 px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100;
+    }
+
+    .premium-table {
+        @apply min-w-full border-separate border-spacing-0 text-xs text-slate-700 sm:text-sm;
+    }
+
+    .premium-table thead {
+        @apply sticky top-0 z-10 bg-slate-50/95 text-left text-[10px] uppercase tracking-[0.24em] text-slate-500 backdrop-blur sm:text-[11px];
+    }
+
+    .premium-table th {
+        @apply border-b border-slate-200 px-5 py-4 font-semibold first:rounded-tl-3xl last:rounded-tr-3xl sm:px-6;
+    }
+
+    .premium-table td {
+        @apply border-b border-slate-200 px-5 py-4 align-middle sm:px-6;
+    }
+
+    .premium-table tbody tr {
+        @apply transition duration-200 hover:bg-emerald-50/40;
+    }
+
+    .premium-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .premium-glow {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), 0 20px 60px -30px rgba(16, 185, 129, 0.35);
+    }
+
+    .sidebar-link {
+        @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-200 transition duration-300;
+    }
+
+    .sidebar-link:hover {
+        @apply bg-white/10 text-white;
+    }
+
+    .sidebar-link-active {
+        @apply bg-white/10 text-white shadow-[0_18px_50px_-30px_rgba(255,255,255,0.45)];
+    }
+
+    .section-label {
+        @apply text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500 sm:text-xs sm:tracking-[0.28em];
+    }
+
+    .section-heading {
+        @apply text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl;
+    }
+
+    .glass-panel {
+        @apply rounded-[2rem] border border-white/40 bg-white/75 backdrop-blur-xl;
+    }
+}
+
+@layer utilities {
+    .animate-fade-up {
+        animation: fade-up 0.7s ease-out both;
+    }
+
+    .animate-float {
+        animation: float 8s ease-in-out infinite;
+    }
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
