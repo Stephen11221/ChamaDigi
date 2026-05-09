@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MembersController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +10,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/members', [MembersController::class, 'index'])->name('members');
     Route::post('/members', [MembersController::class, 'store'])->name('members.store');
     Route::view('/contributions', 'pages.contributions.index')->name('contributions');
