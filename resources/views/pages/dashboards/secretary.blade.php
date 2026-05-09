@@ -5,6 +5,13 @@
                 <div class="space-y-6">
                     <div class="flex flex-wrap items-center gap-3">
                         <x-badge variant="success" icon="fa-calendar-days">Secretary dashboard</x-badge>
+                        <span class="text-sm text-slate-500">{{ $today ?? now()->format('l, d F Y') }}</span>
+                    </div>
+                    <div class="max-w-3xl space-y-4">
+                        <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Welcome back, {{ Auth::user()->name }}.</h1>
+                        <p class="text-base leading-8 text-slate-600">Manage meetings, communication, and member coordination from one organized workspace.</p>
+                    </div>
+                </div>
                         <span class="text-sm text-slate-500">{{ $today }}</span>
                     </div>
 

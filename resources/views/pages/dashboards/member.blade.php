@@ -5,6 +5,7 @@
                 <div class="space-y-6">
                     <div class="flex flex-wrap items-center gap-3">
                         <x-badge variant="dark" icon="fa-user">Member dashboard</x-badge>
+                        <span class="text-sm text-slate-500">{{ $today ?? now()->format('l, d F Y') }}</span>
                         <span class="text-sm text-slate-500">{{ $today }}</span>
                     </div>
 

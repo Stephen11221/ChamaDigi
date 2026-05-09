@@ -7,7 +7,9 @@
         ->take(2)
         ->map(fn ($part) => mb_substr($part, 0, 1))
         ->implode('');
+    $photo = $user->profile_photo ? asset('storage/'.$user->profile_photo) : null;
 
+    $navigation = [
     $sectionsByRole = [
         'admin' => [
             [
@@ -20,6 +22,9 @@
                 'title' => 'Operations',
                 'items' => [
                     ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
+                    ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
+                    ['label' => 'Loans', 'route' => 'loans', 'icon' => 'fa-hand-holding-dollar', 'active' => 'loans'],
                     ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
                     ['label' => 'Loans', 'route' => 'loans', 'icon' => 'fa-hand-holding-dollar', 'active' => 'loans'],
                     ['label' => 'Investments', 'route' => 'investments', 'icon' => 'fa-building-columns', 'active' => 'investments'],
@@ -55,6 +60,12 @@
                 ],
             ],
             [
+                'title' => 'Coordination',
+                'items' => [
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
+                    ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
+                    ['label' => 'Profile', 'route' => 'profile.edit', 'icon' => 'fa-user-gear', 'active' => 'profile.*'],
+                    ['label' => 'Settings', 'route' => 'settings', 'icon' => 'fa-gears', 'active' => 'settings'],
                 'title' => 'Team',
                 'items' => [
                     ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
@@ -74,6 +85,10 @@
                 'title' => 'Secretariat',
                 'items' => [
                     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fa-chart-line', 'active' => 'dashboard'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
+                    ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
+                    ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
+                    ['label' => 'Reports', 'route' => 'reports', 'icon' => 'fa-chart-pie', 'active' => 'reports'],
                     ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
                     ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
                     ['label' => 'Reports', 'route' => 'reports', 'icon' => 'fa-chart-pie', 'active' => 'reports'],
@@ -90,12 +105,14 @@
         ],
         'member' => [
             [
+                'title' => 'My Space',
                 'title' => 'Member Space',
                 'items' => [
                     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fa-chart-line', 'active' => 'dashboard'],
                     ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
                     ['label' => 'Loans', 'route' => 'loans', 'icon' => 'fa-hand-holding-dollar', 'active' => 'loans'],
                     ['label' => 'Payments', 'route' => 'payments', 'icon' => 'fa-receipt', 'active' => 'payments'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
                     ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
                 ],
             ],
@@ -108,6 +125,8 @@
         ],
     ];
 
+    $sections = $navigation[$role] ?? $navigation['member'];
+    $roleLabel = match ($role) {
     $sections = $sectionsByRole[$role] ?? $sectionsByRole['member'];
     $heroTitle = match ($role) {
         'admin' => 'Admin console',
@@ -115,6 +134,11 @@
         'secretary' => 'Secretariat hub',
         default => 'Member portal',
     };
+    $roleCopy = match ($role) {
+        'admin' => 'Full platform oversight and user management.',
+        'treasurer' => 'Money movement, reconciliations, and treasury reporting.',
+        'secretary' => 'Meetings, member coordination, and communication.',
+        default => 'Your contributions, loans, payments, and updates.',
     $heroSubtitle = match ($role) {
         'admin' => 'Govern the platform, manage users, and monitor operations.',
         'treasurer' => 'Track collections, payments, and loan performance.',
@@ -135,6 +159,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-semibold">Chama Platform</p>
+                        <p class="text-xs text-slate-300">{{ $roleLabel }}</p>
                         <p class="text-xs text-slate-300">{{ $heroTitle }}</p>
                     </div>
                 </div>
@@ -147,18 +172,26 @@
                 <div class="rounded-[1.5rem] border border-white/10 bg-white/5 p-4">
                     <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">Signed in as</p>
                     <div class="mt-4 flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 font-semibold text-white">{{ $initials }}</div>
+                        <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/15 font-semibold text-white">
+                            @if ($photo)
+                                <img src="{{ $photo }}" alt="{{ $user->name ?? 'Member' }}" class="h-full w-full object-cover" />
+                            @else
+                                {{ $initials }}
+                            @endif
+                        </div>
                         <div>
                             <p class="text-sm font-semibold">{{ $user->name ?? 'Member' }}</p>
                             <p class="text-xs text-slate-300">{{ $user->role?->role_name ?? 'Member' }}</p>
                         </div>
                     </div>
+                    <p class="mt-4 text-sm text-slate-300">{{ $roleCopy }}</p>
                     <p class="mt-4 text-sm text-slate-300">{{ $heroSubtitle }}</p>
                 </div>
 
                 <div class="mt-5 space-y-5">
                     @foreach ($sections as $section)
                         <div>
+                            <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ $section['title'] }}</p>
                             <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
                                 {{ $section['title'] }}
                             </p>
@@ -195,6 +228,7 @@
             </div>
             <div>
                 <p class="text-base font-semibold tracking-tight">Chama Platform</p>
+                <p class="text-xs text-slate-300">{{ $roleLabel }}</p>
                 <p class="text-xs text-slate-300">{{ $heroTitle }}</p>
             </div>
         </div>
@@ -203,18 +237,26 @@
             <div class="rounded-[1.5rem] border border-white/10 bg-white/5 p-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">Welcome back</p>
                 <div class="mt-4 flex items-center gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 font-semibold text-white">{{ $initials }}</div>
+                    <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white/15 font-semibold text-white">
+                        @if ($photo)
+                            <img src="{{ $photo }}" alt="{{ $user->name ?? 'Member' }}" class="h-full w-full object-cover" />
+                        @else
+                            {{ $initials }}
+                        @endif
+                    </div>
                     <div>
                         <p class="text-sm font-semibold text-white">{{ $user->name ?? 'Member' }}</p>
                         <p class="text-xs text-slate-300">{{ $user->role?->role_name ?? 'Member' }}</p>
                     </div>
                 </div>
+                <p class="mt-4 text-sm text-slate-300">{{ $roleCopy }}</p>
                 <p class="mt-4 text-sm text-slate-300">{{ $heroSubtitle }}</p>
             </div>
 
             <div class="mt-6 space-y-5">
                 @foreach ($sections as $section)
                     <div>
+                        <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ $section['title'] }}</p>
                         <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
                             {{ $section['title'] }}
                         </p>
@@ -235,6 +277,8 @@
         <div class="border-t border-white/10 p-5">
             <div class="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-500/10 p-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100">Workspace</p>
+                <p class="mt-2 text-lg font-semibold text-white">{{ $roleLabel }}</p>
+                <p class="mt-1 text-sm text-slate-300">{{ $roleCopy }}</p>
                 <p class="mt-2 text-lg font-semibold text-white">{{ $heroTitle }}</p>
                 <p class="mt-1 text-sm text-slate-300">{{ $heroSubtitle }}</p>
             </div>

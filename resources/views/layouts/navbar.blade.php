@@ -35,12 +35,17 @@
                     @php
                         $name = Auth::user()->name ?? 'CP';
                         $initials = collect(explode(' ', $name))->filter()->take(2)->map(fn ($part) => mb_substr($part, 0, 1))->implode('');
+                        $photo = Auth::user()->profile_photo ? asset('storage/'.Auth::user()->profile_photo) : null;
                     @endphp
 
                     <div class="relative">
                         <button type="button" x-on:click="profileOpen = ! profileOpen" class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left shadow-sm transition hover:border-emerald-300">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-semibold text-white">
-                                {{ $initials }}
+                                @if ($photo)
+                                    <img src="{{ $photo }}" alt="{{ $name }}" class="h-full w-full rounded-xl object-cover" />
+                                @else
+                                    {{ $initials }}
+                                @endif
                             </div>
                             <div class="hidden sm:block">
                                 <p class="text-sm font-semibold text-slate-900">{{ $name }}</p>
