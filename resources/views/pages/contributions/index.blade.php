@@ -1,44 +1,53 @@
 <x-app-layout>
+    @php
+        $role = strtolower(Auth::user()->role?->role_name ?? 'member');
+        $isTreasuryStaff = $isTreasuryStaff ?? in_array($role, ['admin', 'treasurer'], true);
+    @endphp
+
     <div x-data="{ recordPayment: false }" class="space-y-8">
         <section class="premium-card px-6 py-8 lg:px-8">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div class="max-w-3xl space-y-3">
                     <p class="section-label">Contributions</p>
                     <h1 class="section-heading">Contribution intelligence</h1>
-                    <p class="text-sm leading-7 text-slate-600">Connect your contribution feed to show collection totals, payment history, and trend charts.</p>
+                    <p class="text-sm leading-7 text-slate-600">
+                        Track member payments in a real contribution table and record new payments for treasury staff.
+                    </p>
                 </div>
-                <x-button icon="fa-receipt" x-on:click="recordPayment = true">Record payment</x-button>
+                @if ($isTreasuryStaff)
+                    <x-button icon="fa-receipt" x-on:click="recordPayment = true">Record contribution</x-button>
+                @endif
             </div>
         </section>
 
         <section class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            <x-stat-card title="Total Collected" value="—" subtitle="Connect contribution data" icon="fa-sack-dollar" tone="emerald" />
-            <x-stat-card title="Paid Members" value="—" subtitle="Connect payment status" icon="fa-user-check" tone="blue" />
-            <x-stat-card title="Pending" value="—" subtitle="Connect reconciliation status" icon="fa-clock" tone="slate" />
-            <x-stat-card title="Late Payments" value="—" subtitle="Connect overdue records" icon="fa-triangle-exclamation" tone="gold" />
+            <x-stat-card title="Total Collected" value="KES {{ number_format($contributions->sum(fn ($item) => (float) $item->amount), 2) }}" subtitle="Connected contribution records" icon="fa-sack-dollar" tone="emerald" />
+            <x-stat-card title="Paid Members" value="{{ $contributions->where('status', 'paid')->pluck('user_id')->unique()->count() }}" subtitle="Members with paid entries" icon="fa-user-check" tone="blue" />
+            <x-stat-card title="Pending" value="{{ $contributions->where('status', 'pending')->count() }}" subtitle="Awaiting reconciliation" icon="fa-clock" tone="slate" />
+            <x-stat-card title="Late Payments" value="{{ $contributions->where('status', 'late')->count() }}" subtitle="Overdue records" icon="fa-triangle-exclamation" tone="gold" />
         </section>
 
         <section class="grid gap-6 xl:grid-cols-2">
-            <x-chart-card title="Monthly collection" subtitle="Connect a chart feed to render this view">
+            <x-chart-card title="Monthly collection" subtitle="Contributions by month">
                 <div class="flex h-[300px] items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 text-center">
                     <div>
-                        <p class="text-sm font-semibold text-slate-900">No chart data yet</p>
-                        <p class="mt-1 text-sm text-slate-500">The contribution chart will appear when connected to the backend.</p>
+                        <p class="text-sm font-semibold text-slate-900">Live contribution data</p>
+                        <p class="mt-1 text-sm text-slate-500">Hook in charting later if you want trends here.</p>
                     </div>
                 </div>
             </x-chart-card>
 
-            <x-chart-card title="Collection trend" subtitle="Monthly momentum and payment volume">
+            <x-chart-card title="Collection trend" subtitle="Payment volume over time">
                 <div class="flex h-[300px] items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 text-center">
                     <div>
-                        <p class="text-sm font-semibold text-slate-900">No chart data yet</p>
-                        <p class="mt-1 text-sm text-slate-500">Connect a trend source to display progress over time.</p>
+                        <p class="text-sm font-semibold text-slate-900">Live contribution data</p>
+                        <p class="mt-1 text-sm text-slate-500">This space can host the graph later.</p>
                     </div>
                 </div>
             </x-chart-card>
         </section>
 
-        <x-table-card title="Recent contribution log" subtitle="Connect live transactions to populate this table">
+        <x-table-card title="Contribution table" subtitle="Latest contribution records">
             <table class="premium-table">
                 <thead>
                     <tr>
@@ -52,46 +61,109 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 bg-white">
-                    <tr>
-                        <td colspan="7" class="px-6 py-10 text-center text-sm text-slate-500">
-                            No contribution records connected yet.
-                        </td>
-                    </tr>
+                    @forelse ($contributions as $item)
+                        <tr>
+                            <td>{{ $item->member?->name ?? 'Member' }}</td>
+                            <td class="font-semibold text-slate-900">KES {{ number_format((float) $item->amount, 2) }}</td>
+                            <td>{{ $item->contribution_month }}</td>
+                            <td>{{ optional($item->payment_date)->format('Y-m-d') }}</td>
+                            <td>{{ ucfirst($item->payment_method) }}</td>
+                            <td>{{ $item->reference_number }}</td>
+                            <td>
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $item->status === 'paid' ? 'bg-emerald-100 text-emerald-700' : ($item->status === 'late' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700') }}">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-10 text-center text-sm text-slate-500">
+                                No contribution records yet.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </x-table-card>
 
-        <x-modal open="recordPayment" title="Record member payment" maxWidth="2xl">
-            <form class="grid gap-5 sm:grid-cols-2">
-                <div>
-                    <label class="mb-2 block text-sm font-semibold text-slate-700">Member</label>
-                    <select class="premium-select">
-                        <option>Select member</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-semibold text-slate-700">Amount</label>
-                    <input type="text" class="premium-input" placeholder="Enter amount" />
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-semibold text-slate-700">Method</label>
-                    <select class="premium-select">
-                        <option>Select method</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="mb-2 block text-sm font-semibold text-slate-700">Reference</label>
-                    <input type="text" class="premium-input" placeholder="Enter reference" />
-                </div>
-                <div class="sm:col-span-2">
-                    <label class="mb-2 block text-sm font-semibold text-slate-700">Payment date</label>
-                    <input type="date" class="premium-input" />
-                </div>
-                <div class="flex flex-wrap justify-end gap-3 sm:col-span-2">
-                    <x-button variant="secondary" type="button" x-on:click="recordPayment = false">Cancel</x-button>
-                    <x-button>Save payment</x-button>
-                </div>
-            </form>
-        </x-modal>
+        @if ($isTreasuryStaff)
+            <x-modal open="recordPayment" title="Record contribution" maxWidth="2xl">
+                <form method="POST" action="{{ route('contributions.store') }}" class="grid gap-5 sm:grid-cols-2">
+                    @csrf
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Member</label>
+                        <select name="user_id" class="premium-select" required>
+                            <option value="">Select member</option>
+                            @foreach ($members as $member)
+                                <option value="{{ $member->id }}">{{ $member->name }} ({{ $member->role?->role_name ?? 'Member' }})</option>
+                            @endforeach
+                        </select>
+                        @error('user_id')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Amount</label>
+                        <input type="number" name="amount" min="1" step="0.01" class="premium-input" placeholder="Enter amount" required />
+                        @error('amount')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Method</label>
+                        <select name="payment_method" class="premium-select" required>
+                            <option value="">Select method</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="bank">Bank</option>
+                            <option value="card">Card</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                        @error('payment_method')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Reference</label>
+                        <input type="text" name="reference_number" class="premium-input" placeholder="Enter reference" required />
+                        @error('reference_number')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Contribution month</label>
+                        <input type="month" name="contribution_month" class="premium-input" required />
+                        @error('contribution_month')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Payment date</label>
+                        <input type="date" name="payment_date" class="premium-input" required />
+                        @error('payment_date')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Status</label>
+                        <select name="status" class="premium-select" required>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="late">Late</option>
+                        </select>
+                        @error('status')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">Notes</label>
+                        <textarea name="notes" rows="4" class="premium-input" placeholder="Optional notes"></textarea>
+                    </div>
+                    <div class="sm:col-span-2 flex flex-wrap justify-end gap-3">
+                        <x-button variant="secondary" type="button" x-on:click="recordPayment = false">Cancel</x-button>
+                        <x-button type="submit">Save contribution</x-button>
+                    </div>
+                </form>
+            </x-modal>
+        @endif
     </div>
 </x-app-layout>

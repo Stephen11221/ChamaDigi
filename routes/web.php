@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\MembersController;
+use App\Http\Controllers\MeetingsController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContributionsController;
+use App\Http\Controllers\LoansController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,18 +13,19 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-<<<<<<< Updated upstream
-    Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
-=======
-    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
->>>>>>> Stashed changes
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/members', [MembersController::class, 'index'])->name('members');
     Route::post('/members', [MembersController::class, 'store'])->name('members.store');
-    Route::view('/contributions', 'pages.contributions.index')->name('contributions');
-    Route::view('/loans', 'pages.loans.index')->name('loans');
+    Route::get('/contributions', [ContributionsController::class, 'index'])->name('contributions');
+    Route::post('/contributions', [ContributionsController::class, 'store'])->name('contributions.store');
+    Route::get('/loans', [LoansController::class, 'index'])->name('loans');
+    Route::post('/loans', [LoansController::class, 'store'])->name('loans.store');
+    Route::post('/loans/{loan}/approve', [LoansController::class, 'approve'])->name('loans.approve');
     Route::view('/investments', 'pages.investments.index')->name('investments');
     Route::view('/reports', 'pages.reports.index')->name('reports');
-    Route::view('/meetings', 'pages.meetings.index')->name('meetings');
+    Route::get('/meetings', [MeetingsController::class, 'index'])->name('meetings');
+    Route::post('/meetings', [MeetingsController::class, 'store'])->name('meetings.store');
+    Route::post('/meetings/{meeting}/reply', [MeetingsController::class, 'reply'])->name('meetings.reply');
     Route::view('/payments', 'pages.payments.index')->name('payments');
     Route::view('/settings', 'pages.settings.index')->name('settings');
     Route::view('/notifications', 'pages.notifications.index')->name('notifications');
