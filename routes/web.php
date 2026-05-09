@@ -9,7 +9,11 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+<<<<<<< Updated upstream
     Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
+=======
+    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
+>>>>>>> Stashed changes
     Route::get('/members', [MembersController::class, 'index'])->name('members');
     Route::post('/members', [MembersController::class, 'store'])->name('members.store');
     Route::view('/contributions', 'pages.contributions.index')->name('contributions');
