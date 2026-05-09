@@ -10,6 +10,7 @@
     $photo = $user->profile_photo ? asset('storage/'.$user->profile_photo) : null;
 
     $navigation = [
+    $sectionsByRole = [
         'admin' => [
             [
                 'title' => 'Overview',
@@ -24,6 +25,9 @@
                     ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
                     ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
                     ['label' => 'Loans', 'route' => 'loans', 'icon' => 'fa-hand-holding-dollar', 'active' => 'loans'],
+                    ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
+                    ['label' => 'Loans', 'route' => 'loans', 'icon' => 'fa-hand-holding-dollar', 'active' => 'loans'],
+                    ['label' => 'Investments', 'route' => 'investments', 'icon' => 'fa-building-columns', 'active' => 'investments'],
                     ['label' => 'Payments', 'route' => 'payments', 'icon' => 'fa-receipt', 'active' => 'payments'],
                 ],
             ],
@@ -31,6 +35,7 @@
                 'title' => 'Insights',
                 'items' => [
                     ['label' => 'Reports', 'route' => 'reports', 'icon' => 'fa-chart-pie', 'active' => 'reports'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
                     ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
                     ['label' => 'Audit Logs', 'route' => 'audit', 'icon' => 'fa-shield-halved', 'active' => 'audit'],
                 ],
@@ -61,6 +66,17 @@
                     ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
                     ['label' => 'Profile', 'route' => 'profile.edit', 'icon' => 'fa-user-gear', 'active' => 'profile.*'],
                     ['label' => 'Settings', 'route' => 'settings', 'icon' => 'fa-gears', 'active' => 'settings'],
+                'title' => 'Team',
+                'items' => [
+                    ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
+                    ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
+                ],
+            ],
+            [
+                'title' => 'Account',
+                'items' => [
+                    ['label' => 'Profile', 'route' => 'profile.edit', 'icon' => 'fa-user-gear', 'active' => 'profile.*'],
                 ],
             ],
         ],
@@ -73,6 +89,10 @@
                     ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
                     ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
                     ['label' => 'Reports', 'route' => 'reports', 'icon' => 'fa-chart-pie', 'active' => 'reports'],
+                    ['label' => 'Members', 'route' => 'members', 'icon' => 'fa-users', 'active' => 'members'],
+                    ['label' => 'Meetings', 'route' => 'meetings', 'icon' => 'fa-calendar-days', 'active' => 'meetings'],
+                    ['label' => 'Reports', 'route' => 'reports', 'icon' => 'fa-chart-pie', 'active' => 'reports'],
+                    ['label' => 'Notifications', 'route' => 'notifications', 'icon' => 'fa-bell', 'active' => 'notifications'],
                 ],
             ],
             [
@@ -86,6 +106,7 @@
         'member' => [
             [
                 'title' => 'My Space',
+                'title' => 'Member Space',
                 'items' => [
                     ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'fa-chart-line', 'active' => 'dashboard'],
                     ['label' => 'Contributions', 'route' => 'contributions', 'icon' => 'fa-wallet', 'active' => 'contributions'],
@@ -106,6 +127,8 @@
 
     $sections = $navigation[$role] ?? $navigation['member'];
     $roleLabel = match ($role) {
+    $sections = $sectionsByRole[$role] ?? $sectionsByRole['member'];
+    $heroTitle = match ($role) {
         'admin' => 'Admin console',
         'treasurer' => 'Treasury desk',
         'secretary' => 'Secretariat hub',
@@ -116,6 +139,11 @@
         'treasurer' => 'Money movement, reconciliations, and treasury reporting.',
         'secretary' => 'Meetings, member coordination, and communication.',
         default => 'Your contributions, loans, payments, and updates.',
+    $heroSubtitle = match ($role) {
+        'admin' => 'Govern the platform, manage users, and monitor operations.',
+        'treasurer' => 'Track collections, payments, and loan performance.',
+        'secretary' => 'Coordinate members, meetings, and communication.',
+        default => 'See your savings, loans, and payment activity at a glance.',
     };
 @endphp
 
@@ -132,6 +160,7 @@
                     <div>
                         <p class="text-sm font-semibold">Chama Platform</p>
                         <p class="text-xs text-slate-300">{{ $roleLabel }}</p>
+                        <p class="text-xs text-slate-300">{{ $heroTitle }}</p>
                     </div>
                 </div>
                 <button type="button" x-on:click="sidebarOpen = false" class="rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white">
@@ -156,12 +185,16 @@
                         </div>
                     </div>
                     <p class="mt-4 text-sm text-slate-300">{{ $roleCopy }}</p>
+                    <p class="mt-4 text-sm text-slate-300">{{ $heroSubtitle }}</p>
                 </div>
 
                 <div class="mt-5 space-y-5">
                     @foreach ($sections as $section)
                         <div>
                             <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ $section['title'] }}</p>
+                            <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                                {{ $section['title'] }}
+                            </p>
 
                             <nav class="mt-2 space-y-2">
                                 @foreach ($section['items'] as $item)
@@ -196,6 +229,7 @@
             <div>
                 <p class="text-base font-semibold tracking-tight">Chama Platform</p>
                 <p class="text-xs text-slate-300">{{ $roleLabel }}</p>
+                <p class="text-xs text-slate-300">{{ $heroTitle }}</p>
             </div>
         </div>
 
@@ -216,12 +250,16 @@
                     </div>
                 </div>
                 <p class="mt-4 text-sm text-slate-300">{{ $roleCopy }}</p>
+                <p class="mt-4 text-sm text-slate-300">{{ $heroSubtitle }}</p>
             </div>
 
             <div class="mt-6 space-y-5">
                 @foreach ($sections as $section)
                     <div>
                         <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ $section['title'] }}</p>
+                        <p class="px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                            {{ $section['title'] }}
+                        </p>
 
                         <nav class="mt-2 space-y-2">
                             @foreach ($section['items'] as $item)
@@ -241,6 +279,8 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100">Workspace</p>
                 <p class="mt-2 text-lg font-semibold text-white">{{ $roleLabel }}</p>
                 <p class="mt-1 text-sm text-slate-300">{{ $roleCopy }}</p>
+                <p class="mt-2 text-lg font-semibold text-white">{{ $heroTitle }}</p>
+                <p class="mt-1 text-sm text-slate-300">{{ $heroSubtitle }}</p>
             </div>
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
                 @csrf
